@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Healthcare Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+      background: #eef2f5;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    canvas {
+      max-width: 700px;
+      margin: 20px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+
+    #conditionList {
+      margin: 20px auto;
+      max-width: 600px;
+      text-align: left;
+      font-size: 16px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    .cond-label {
+      margin-bottom: 8px;
+    }
+
+    .color-box {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      margin-right: 10px;
+      border-radius: 3px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 Healthcare Dashboard</h1>
+  <canvas id="ageChart"></canvas>
+
+  <div id="conditionList">
+    <h3>🩺 Condition Types:</h3>
+    <div id="labelsContainer"></div>
+  </div>
+
+  <canvas id="conditionChart"></canvas>
+
+  <script>
+    const patients = JSON.parse(localStorage.getItem('patients')) || [];
+
+    // AGE DISTRIBUTION
+    const ageMap = {};
+    patients.forEach(p => {
+      ageMap[p.age] = (ageMap[p.age] || 0) + 1;
+    });
+
+    new Chart(document.getElementById('ageChart'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(ageMap),
+        datasets: [{
+          label: 'Patients by Age',
+          data: Object.values(ageMap),
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    // CONDITION DISTRIBUTION
+    const conditionMap = {};
+    patients.forEach(p => {
+      conditionMap[p.condition] = (conditionMap[p.condition] || 0) + 1;
+    });
+
+    const conditionLabels = Object.keys(conditionMap);
+    const conditionData = Object.values(conditionMap);
+
+    // Specifying unique colors for each condition
+    const conditionColors = {
+      "Diabetes": "#FF6384",
+      "Hypertension": "#36A2EB",
+      "Asthma": "#FFCD56",
+      "Cancer": "#4BC0C0",
+      "Heart Disease": "#FF9F40",
+      "Obesity": "#9966FF",
+      "Stroke": "#FF6666"
+    };
+
+    const generateConditionColors = (labels) => {
+      return labels.map(label => conditionColors[label] || '#D3D3D3'); // Default to light gray if not found
+    };
+
+    const conditionColorsUsed = generateConditionColors(conditionLabels);
+
+    // DISPLAY CONDITION TYPES ABOVE CHART
+    const container = document.getElementById('labelsContainer');
+    conditionLabels.forEach((label, index) => {
+      const div = document.createElement('div');
+      div.className = 'cond-label';
+      div.innerHTML = `<span class="color-box" style="background:${conditionColorsUsed[index]}"></span> ${label}`;
+      container.appendChild(div);
+    });
+
+    new Chart(document.getElementById('conditionChart'), {
+      type: 'pie',
+      data: {
+        labels: conditionLabels,
+        datasets: [{
+          label: 'Patients by Condition',
+          data: conditionData,
+          backgroundColor: conditionColorsUsed
+        }]
+      },
+      options: {
+        responsive: true
+      }
+    });
+  </script>
+  <div class="back-btn">
+    <a href="search.html"><button>⬅ Back to Home</button></a>
+  </div>
+</body>
+</html>

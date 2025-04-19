@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Patient</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    .form-container {
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      max-width: 800px;
+      margin: 30px auto;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .back-btn {
+      margin-top: 30px;
+    }
+
+    @media (max-width: 600px) {
+      input, select {
+        font-size: 14px;
+      }
+
+      table {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Add New Patient</h1>
+
+  <div class="form-container">
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input type="text" id="name" />
+    </div>
+
+    <div class="form-group">
+      <label for="age">Age:</label>
+      <input type="number" id="age" />
+    </div>
+
+    <div class="form-group">
+      <label for="gender">Gender:</label>
+      <select id="gender">
+        <option value="">Select</option>
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="condition">Medical Condition:</label>
+      <input type="text" id="condition" />
+    </div>
+
+    <div class="form-group">
+      <label for="hospital">Hospital:</label>
+      <input type="text" id="hospital" />
+    </div>
+
+    <div class="form-group">
+      <label for="billing">Billing Amount ($):</label>
+      <input type="number" id="billing" />
+    </div>
+
+    <button onclick="addPatient()">Add Patient</button>
+  </div>
+
+  <h2>All Added Patients:</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th><th>Age</th><th>Gender</th><th>Medical Condition</th><th>Hospital</th><th>Billing Amount</th>
+      </tr>
+    </thead>
+    <tbody id="patientTableBody"></tbody>
+  </table>
+
+  <div class="back-btn">
+    <a href="search.html"><button>⬅ Back to Home</button></a>
+  </div>
+
+  <script>
+    const tableBody = document.getElementById("patientTableBody");
+
+    function renderPatients() {
+      const data = JSON.parse(localStorage.getItem("patients") || "[]");
+      tableBody.innerHTML = data.map(p => `
+        <tr>
+          <td>${p.name}</td>
+          <td>${p.age}</td>
+          <td>${p.gender}</td>
+          <td>${p["medical condition"]}</td>
+          <td>${p.hospital}</td>
+          <td>$${parseFloat(p["billing amount"]).toFixed(2)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function addPatient() {
+      const name = document.getElementById("name").value.trim();
+      const age = document.getElementById("age").value.trim();
+      const gender = document.getElementById("gender").value;
+      const condition = document.getElementById("condition").value.trim();
+      const hospital = document.getElementById("hospital").value.trim();
+      const billing = document.getElementById("billing").value.trim();
+
+      if (!name || !age || !gender || !condition || !hospital || !billing) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      let patients = JSON.parse(localStorage.getItem("patients") || "[]");
+
+      const exists = patients.some(p => p.name.toLowerCase() === name.toLowerCase());
+      if (exists) {
+        alert("Patient already exists.");
+        return;
+      }
+
+      const newPatient = {
+        name, age, gender,
+        "medical condition": condition,
+        hospital,
+        "billing amount": parseFloat(billing).toFixed(2)
+      };
+
+      patients.push(newPatient);
+      localStorage.setItem("patients", JSON.stringify(patients));
+      renderPatients();
+      alert("Patient added successfully!");
+    }
+
+    renderPatients();
+  </script>
+</body>
+</html>

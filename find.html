@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Find Patients</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+      width: 250px;
+    }
+    table {
+      width: 90%;
+      margin: 30px auto;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #999;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .back-btn {
+      margin-top: 20px;
+    }
+    .btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px auto;
+      display: inline-block;
+      cursor: pointer;
+    }
+    @media (min-width: 600px) {
+      input, select, button {
+        display: inline-block;
+        width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Search Patients</h1>
+
+  <!-- Search Bar -->
+  <input type="text" id="searchInput" placeholder="Enter patient name..." />
+  <button onclick="searchPatient()">Search</button>
+  <button onclick="resetTable()">Show All</button>
+
+  <!-- Results Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th><th>Age</th><th>Gender</th><th>Medical Condition</th><th>Hospital</th><th>Billing Amount</th>
+      </tr>
+    </thead>
+    <tbody id="resultBody"></tbody>
+  </table>
+
+  <div class="back-btn">
+    <a href="search.html"><button class="btn">⬅ Back to Home</button></a>
+  </div>
+  <a href="dashboard.html">
+    <button style="padding: 10px 20px; font-size: 16px; margin-top: 20px;">
+      📊 Dashboard Check
+    </button>
+  </a>
+  
+
+  <script>
+    const patientData = JSON.parse(localStorage.getItem("patients") || "[]");
+
+    function renderPatients(patients) {
+      const body = document.getElementById("resultBody");
+      if (patients.length === 0) {
+        body.innerHTML = '<tr><td colspan="6">No matching records found.</td></tr>';
+        return;
+      }
+      body.innerHTML = patients.map(p => `
+        <tr>
+          <td>${p.name}</td>
+          <td>${p.age}</td>
+          <td>${p.gender}</td>
+          <td>${p["medical condition"]}</td>
+          <td>${p.hospital}</td>
+          <td>$${p["billing amount"]}</td>
+        </tr>
+      `).join("");
+    }
+
+    function searchPatient() {
+      const input = document.getElementById("searchInput").value.trim().toLowerCase();
+      if (!input) {
+        renderPatients(patientData); // Show all patients if the input is empty
+        return;
+      }
+      const filtered = patientData.filter(p =>
+        p.name && p.name.toLowerCase().includes(input)
+      );
+      renderPatients(filtered);
+    }
+
+    function resetTable() {
+      document.getElementById("searchInput").value = "";
+      renderPatients(patientData); // Reset to show all patients
+    }
+
+    // On load, show all patients
+    renderPatients(patientData);
+  </script>
+</body>
+</html>
